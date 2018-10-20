@@ -98,9 +98,69 @@ exports.showDetail = (req, res) => {
             })
         }
         // console.log(data)  data是一个数组，数组里是一个对象，包括了这篇文章的所有信息
+        //req.session保存的是登录用户的id;data是指数据库中的用户信息
         res.render('topic/show.html', {
-            topic: data[0]
+            topic: data[0],
+            sessionUserId: req.session.user.id
         });
 
     });
 }
+
+exports.showEdit = (req,res) => {
+    //获取动态路由的用户话题id
+    const topicID = req.params.topicID
+    //拿到新的表单数据(标题和内容)
+    // const body = req.body
+    // console.log(body)
+    //查询数据库,显示这条id对应的标题和内容，页面跳转
+    m_topics.findTopicByID(topicID, (err,data) => {
+        if(err) {
+            return res.send({
+                code: 500,
+                message: err.message
+            })
+        }
+        // console.log(data)
+        res.render('topic/edit.html', {topic: data[0]})
+    })
+  
+}
+
+//处理编辑表单的提交
+exports.handleEdit = (req, res) => {
+    const body = req.body
+    const topicID = req.params.topicID
+    // console.log(body,topicID)
+    m_topics.updataTopicByID(body, topicID, (err, data) => {
+        if(err) {
+            return res.send({
+                code: 500,
+                message: "err.message"
+            })
+        }
+        res.send({
+            code: 200,
+            message: '编辑成功'
+        })
+    })
+
+}
+exports.deleteTopic = (req, res) => {
+    const topicID = req.params.topicID
+    m_topics.deleteTopicByID(topicID,(err, data) => {
+        if(err) {
+            return res.send( {
+                code: 500,
+                message: err.message
+            })
+        }
+        res.send({
+            code: 200,
+            message:'删除成功'
+        })
+        // res.redirect('/')
+    })
+}
+
+

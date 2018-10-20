@@ -37,6 +37,21 @@ router.post('/createTopic', c_topic.handleTopic)
 router.get('/signout',c_user.handleSignout)
 
 //处理编辑
-router.get('/topic/:topicID', c_topic.showDetail);
+router.get('/topic/:topicID', c_topic.showDetail)
+
+//点击编辑按钮，显示编辑详情页
+router.get('/topic/:topicID/edit', c_topic.showEdit)
+
+//处理表单提交
+router.post('/topic/:topicID/edit', c_topic.handleEdit)
+
+//删除话题
+router.get('/topic/:topicID/delete', c_topic.deleteTopic)
+
+//注册
+router.get('/signup', c_user.showSignup)
+//提交注册表单
+router.post('/signup', c_user.handleSignup);
+
 
 module.exports = router;

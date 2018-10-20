@@ -1,17 +1,7 @@
+// import { CONNREFUSED } from 'dns';
+
 //导入m_user.js
 const m_user = require('../models/m_user')
-
-
-//导入tools中的db
-const db = require('../tools/db-config');
-//导入mysql包以及配置
-// var mysql = require('mysql');
-// var connection = mysql.createConnection({
-//     host: 'localhost',
-//     user: 'root',
-//     password: 'root',
-//     database: 'news51'
-// });
 
 
 //渲染登录页
@@ -56,30 +46,7 @@ const handleSignin = (req, res) => {
             code: 200,
             message: '可以跳转了'
         })
-
-        
     });
-
-    //2.先验证邮箱    -----提取到了modles下的m_user文件中
-    // const sqlStr = 'select * from users where `email`=?'
-    // connection.query(sqlStr,body.email,(err, data) => {
-    //     if(err) {
-    //         return res.send(err)
-    //     }
-    //     // console.log(data)
-    //     //邮箱不存在的情况，数组长度为0
-    //     if(!data[0]) {
-    //         return res.send('邮箱不存在，快去注册')
-    //     }
-    //     //代码来到这步，说明这个邮箱存在，进行下一步
-    //     if(body.password != data[0].password) {
-    //         return res.send('密码不正确')
-    //     }
-    //     //走到这一步说明邮箱和密码都正确了
-    //     res.redirect('/')
-    // })
-
-    
 }
 
 //处理退出登录，删除session,页面跳转
@@ -89,6 +56,72 @@ const handleSignout = (req,res) => {
     //2.页面重定向
     res.redirect('/signin')
 }
+
+
+
+
+//显示注册页面
+exports.showSignup = (req, res) => {
+    res.render('signup.html')
+}
+
+//处理注册表单
+exports.handleSignup = (req,res) => {
+    const body = req.body  //获取表单数据
+    //验证邮箱是否存在(!!!验证邮箱是否存在，调用时传参数应该是检测邮箱所以要用body.email)
+    m_user.checkEmail(body.email, (err,data) => {
+        if(err) {
+            return res.send({
+                code: 500,
+                message: err.message
+            })
+        }
+        //走到这一步，说明服务器没错，验证邮箱，如果数据库没有，则返回一个空数组,如果有，则提醒邮箱存在
+        if(data[0]) {
+            return res.send({
+                code: 1,
+                message: '邮箱已经存在'
+            })
+        }
+        //验证昵称是否存在，走到这一步说明邮箱不存在
+        m_user.checkNickname(body.nickname, (err, data) => {
+            if(err) {
+                return res.send({
+                    code: 500,
+                    message: err.message
+                })
+            }
+            if(data[0]) {
+                return res.send({
+                    code: 2,
+                    message: '昵称存在'
+                })
+            }
+             //如果昵称不存在
+            m_user.insertUser(body, (err, data) => {
+                if (err) {
+                    return res.send({
+                        code: 500,
+                        message: err.message
+                    });
+                }
+
+                // 发送响应到客户端
+                 res.send({
+                    code: 200,
+                    message: '跳转到登录页'
+                });
+            });
+        })
+
+        
+    })
+    
+
+   
+
+}
+
 //导出(会有多个处理函数)
 exports.showSignin = showSignin;
 exports.handleSignin = handleSignin;

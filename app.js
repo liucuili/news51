@@ -1,8 +1,10 @@
 //程序入口文件
 //1.导包
 const express = require('express')
-const router = require('./router')
+
 const bodyParser = require('body-parser')
+
+const router = require('./router')
 //导入express-session包
 const session = require('express-session')
 
@@ -24,8 +26,7 @@ const app = express()
 //配置模板引擎
 app.engine('html', require('express-art-template'))
 
-// 配置body-parser包
-app.use(bodyParser.urlencoded({ extended: false }))
+
 //处理静态资源
 app.use('/public',express.static('./public'))
 //处理第三方资源
@@ -37,6 +38,8 @@ app.use('/node_modules', express.static('./node_modules'))
 //     saveUninitialized: true
 //   }))
 // 配置express-mysql-session包
+// 配置body-parser包
+app.use(bodyParser.urlencoded({ extended: false }))
 app.use(session({
     key: 'session_cookie_name',
     secret: 'session_cookie_secret',
